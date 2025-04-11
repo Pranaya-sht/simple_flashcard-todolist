@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    
+      
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>Create Flashcard</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <nav>
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="flashcard-create.html">Make Flashcard</a></li>
+          <li><a href="flashcard-read.html">Read Flashcard</a></li>
+          <li><a href="flashcard-list.html">List Flashcards</a></li>
+          <li><a href="todo-list.html">Todo List</a></li>
+        </ul>
+      </nav>
+      
+      <style>
+        nav {
+          background-color: #3f51b5;
+          padding: 10px 0;
+          box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        }
+      
+        nav ul {
+          list-style-type: none;
+          display: flex;
+          justify-content: center;
+          margin: 0;
+          padding: 0;
+        }
+      
+        nav li {
+          margin: 0 10px;
+        }
+      
+        nav a {
+          text-decoration: none;
+          text-color: back;
+          font-weight: bold;
+          font-size: 16px;
+          transition: color 0.3s ease;
+        }
+      
+        nav a:hover {
+          color: #ff4081;
+        }
+      </style>
+    <div class="container">
+        <h1>Create Flashcard</h1>
+        <section class="flashcard-section">
+            <input type="text" id="questionInput" placeholder="Enter question">
+            <input type="text" id="answerInput" placeholder="Enter answer">
+            <button id="addFlashcardBtn">Add Flashcard</button>
+        </section>
+        
+    </div>
+
+    <script>
+        const apiUrl = 'http://127.0.0.1:5000';
+
+        const addFlashcardBtn = document.getElementById('addFlashcardBtn');
+        const questionInput = document.getElementById('questionInput');
+        const answerInput = document.getElementById('answerInput');
+
+        addFlashcardBtn.addEventListener('click', () => {
+            const question = questionInput.value;
+            const answer = answerInput.value;
+            if (question && answer) {
+                fetch(`${apiUrl}/flashcards`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ question, answer })
+                }).then(response => response.json())
+                  .then(flashcard => {
+                      alert("Flashcard added successfully!");
+                      questionInput.value = '';
+                      answerInput.value = '';
+                  });
+            }
+        });
+    </script>
+</body>
+</html>

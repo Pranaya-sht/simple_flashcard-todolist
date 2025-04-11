@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>List Flashcards</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="navbar.css">
+    <style>
+        button.delete-btn {
+            margin-left: 10px;
+            padding: 3px 6px;
+            background-color: red;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button.delete-btn:hover {
+            background-color: darkred;
+        }
+    </style>
+</head>
+<body>
+    <nav class="custom-navbar">
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="flashcard-create.html">Make Flashcard</a></li>
+            <li><a href="flashcard-read.html">Read Flashcard</a></li>
+            <li><a href="flashcard-list.html">List Flashcards</a></li>
+            <li><a href="todo-list.html">Todo List</a></li>
+        </ul>
+    </nav>
+
+    <div class="container">
+        <h1>List Flashcards</h1>
+        <section class="flashcard-section">
+            <ul id="flashcardList"></ul>
+        </section>
+    </div>
+
+    <script>
+        const apiUrl = 'http://127.0.0.1:5000';
+        const flashcardList = document.getElementById('flashcardList');
+
+        window.onload = () => {
+            fetchFlashcards();
+        };
+
+        function fetchFlashcards() {
+            fetch(`${apiUrl}/flashcards`)
+                .then(response => response.json())
+                .then(flashcards => {
+                    flashcardList.innerHTML = ''; // Clear before rendering
+                    flashcards.forEach(flashcard => {
+                        const li = document.createElement('li');
+                        li.innerHTML = `
+                            <strong>${flashcard.question}</strong>: ${flashcard.answer}
+                            <button class="delete-btn" onclick="deleteFlashcard(${flashcard.id}, this)">🗑️ Delete</button>
+                        `;
+                        flashcardList.appendChild(li);
+                    });
+                });
+        }
+
+        function deleteFlashcard(id, buttonElement) {
+            fetch(`${apiUrl}/flashcards/${id}`, {
+                method: 'DELETE'
+            })
+            .then(response => {
+                if (response.ok) {
+                    const li = buttonElement.closest('li');
+                    li.remove();
+                } else {
+                    alert('Failed to delete flashcard.');
+                }
+            });
+        }
+    </script>
+</body>
+</html>

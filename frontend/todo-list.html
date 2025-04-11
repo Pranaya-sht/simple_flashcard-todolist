@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <nav class="custom-navbar">
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="flashcard-create.html">Make Flashcard</a></li>
+          <li><a href="flashcard-read.html">Read Flashcard</a></li>
+          <li><a href="flashcard-list.html">List Flashcards</a></li>
+          <li><a href="todo-list.html">Todo List</a></li>
+        </ul>
+      </nav>
+      
+      <style>
+        .custom-navbar {
+          background-color: #3f51b5;
+          padding: 10px 0;
+          box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+          font-family: Arial, sans-serif;
+          margin-bottom: 20px;
+        }
+      
+        .custom-navbar ul {
+          list-style-type: none;
+          display: flex;
+          justify-content: center;
+          margin: 0;
+          padding: 0;
+        }
+      
+        .custom-navbar li {
+          margin: 0 10px;
+        }
+      
+        .custom-navbar a {
+          text-decoration: none;
+          color: black;
+          font-weight: bold;
+          font-size: 16px;
+          transition: color 0.3s ease;
+        }
+      
+        .custom-navbar a:hover {
+          color: red;
+        }
+      </style>
+      
+    <title>Todo List</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Todo List</h1>
+        <section class="todo-section">
+            <input type="text" id="taskInput" placeholder="Add a new task">
+            <button id="addTaskBtn">Add Task</button>
+            <ul id="taskList"></ul>
+        </section>
+       
+    </div>
+
+    <script>
+        const apiUrl = 'http://127.0.0.1:5000';
+        const addTaskBtn = document.getElementById('addTaskBtn');
+        const taskInput = document.getElementById('taskInput');
+        const taskList = document.getElementById('taskList');
+
+        addTaskBtn.addEventListener('click', () => {
+            const taskContent = taskInput.value;
+            if (taskContent) {
+                fetch(`${apiUrl}/tasks`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ content: taskContent })
+                }).then(response => response.json())
+                  .then(task => {
+                      const li = document.createElement('li');
+                      li.innerHTML = `${task.content} <button onclick="deleteTask(${task.id})">Delete</button>`;
+                      taskList.appendChild(li);
+                      taskInput.value = '';  // Clear input
+                  });
+            }
+        });
+
+        function deleteTask(id) {
+            fetch(`${apiUrl}/tasks/${id}`, { method: 'DELETE' })
+                .then(response => response.json())
+                .then(() => {
+                    const taskItems = document.querySelectorAll('#taskList li');
+                    taskItems.forEach(item => {
+                        if (item.textContent.includes(id)) {
+                            item.remove();
+                        }
+                    });
+                });
+        }
+
+        window.onload = () => {
+            fetchTasks();
+        };
+
+        function fetchTasks() {
+            fetch(`${apiUrl}/tasks`)
+                .then(response => response.json())
+                .then(tasks => {
+                    tasks.forEach(task => {
+                        const li = document.createElement('li');
+                        li.innerHTML = `${task.content} <button onclick="deleteTask(${task.id})">Delete</button>`;
+                        taskList.appendChild(li);
+                    });
+                });
+        }
+    </script>
+</body>
+</html>

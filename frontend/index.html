@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todo and Flashcard App</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="navbar.css">
+</head>
+<body>
+    <!-- Include navbar -->
+    <div id="navbar-container"></div>
+
+    <div class="container">
+        <h1>Welcome to Todo and Flashcard App</h1>
+        <p>This app allows you to manage your tasks and create/review flashcards.</p>
+
+        <section class="navigation">
+            <h2>Navigation</h2>
+            <ul>
+                <li><a href="flashcard-create.html">Create Flashcards</a></li>
+                <li><a href="flashcard-read.html">Study Flashcards</a></li>
+                <li><a href="flashcard-list.html">List Flashcards</a></li>
+                <li><a href="todo-list.html">Todo List</a></li>
+            </ul>
+        </section>
+    </div>
+
+    <script>
+        // Load navbar
+        fetch('navbar.html')
+            .then(response => response.text())
+            .then(html => {
+                document.getElementById('navbar-container').innerHTML = html;
+            });
+    </script>
+</body>
+</html>

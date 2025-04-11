@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Read Flashcards</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="navbar.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f7fc;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .container {
+            width: 80%;
+            max-width: 900px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: white;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .flashcard-container {
+            perspective: 1000px;
+            width: 300px;
+            height: 200px;
+            margin: 30px auto;
+            position: relative;
+        }
+
+        .flashcard {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+            cursor: pointer;
+        }
+
+        .flashcard.is-flipped {
+            transform: rotateY(180deg);
+        }
+
+        .front, .back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            font-size: 20px;
+        }
+
+        .front {
+            background-color: #3f51b5;
+            color: white;
+        }
+
+        .back {
+            background-color: #4caf50;
+            color: white;
+            transform: rotateY(180deg);
+        }
+
+        button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #3f51b5;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: #303f9f;
+        }
+
+        #noCards {
+            color: #888;
+            font-style: italic;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar container -->
+    <div id="navbar-container"></div>
+
+    <div class="container">
+      
+        <h1>Read Flashcards</h1>
+        
+        <div class="flashcard-container">
+            <div class="flashcard" id="flashcard">
+                <div class="front" id="cardFront">Click to load flashcards</div>
+                <div class="back" id="cardBack"></div>
+            </div>
+        </div>
+
+        <div>
+            <button id="nextCardBtn">Next ➡️</button>
+        </div>
+
+        <p id="noCards" style="display: none;">No flashcards available. Please create some first.</p>
+    </div>
+
+    <script>
+        // Load navbar
+         // Load navbar
+         fetch('navbar.html')
+         .then(response => response.text())
+         .then(html => document.getElementById('navbar-container').innerHTML = html)
+         .catch(() => {
+             document.getElementById('navbar-container').innerHTML = `
+                 <nav class="custom-navbar">
+                     <ul>
+                         <li><a href="index.html">Home</a></li>
+                         <li><a href="flashcard-create.html">Create Flashcards</a></li>
+                         <li><a href="flashcard-read.html">Study Flashcards</a></li>
+                         <li><a href="flashcard-list.html">List Flashcards</a></li>
+                         <li><a href="todo-list.html">Todo List</a></li>
+                     </ul>
+                 </nav>
+             `;
+         })
+        const apiUrl = 'http://127.0.0.1:5000/flashcards';
+        let flashcards = [];
+        let currentIndex = 0;
+        const flashcardEl = document.getElementById('flashcard');
+        const frontEl = document.getElementById('cardFront');
+        const backEl = document.getElementById('cardBack');
+        const noCardsMsg = document.getElementById('noCards');
+        const nextCardBtn = document.getElementById('nextCardBtn');
+
+        // Flip card on click
+        flashcardEl.addEventListener('click', flipCard);
+        nextCardBtn.addEventListener('click', nextCard);
+
+        function flipCard() {
+            if (flashcards.length === 0) return;
+            flashcardEl.classList.toggle('is-flipped');
+        }
+
+        function showCard(index) {
+            if (flashcards.length === 0) return;
+            
+            const card = flashcards[index];
+            frontEl.textContent = card.question;
+            backEl.textContent = card.answer;
+            
+            // Reset to front view when showing new card
+            if (flashcardEl.classList.contains('is-flipped')) {
+                flashcardEl.classList.remove('is-flipped');
+            }
+        }
+
+        function nextCard() {
+            if (flashcards.length === 0) return;
+            
+            currentIndex = (currentIndex + 1) % flashcards.length;
+            showCard(currentIndex);
+        }
+
+        // Fetch cards from backend
+        function loadFlashcards() {
+            fetch(apiUrl)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    flashcards = data;
+                    if (flashcards.length > 0) {
+                        showCard(currentIndex);
+                        noCardsMsg.style.display = 'none';
+                    } else {
+                        frontEl.textContent = 'No flashcards available';
+                        noCardsMsg.style.display = 'block';
+                        nextCardBtn.style.display = 'none';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading flashcards:', error);
+                    frontEl.textContent = 'Error loading flashcards';
+                    noCardsMsg.textContent = 'Failed to load flashcards. Please try again later.';
+                    noCardsMsg.style.display = 'block';
+                });
+        }
+
+        // Load flashcards when page loads
+        document.addEventListener('DOMContentLoaded', loadFlashcards);
+    </script>
+</body>
+</html>
